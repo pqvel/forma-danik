@@ -1,113 +1,246 @@
-import Image from "next/image";
+"use client";
+import { Row, InputNumber, Col } from "antd";
+import { Container } from "@/components/ui/wrappers";
+import { InfoCard } from "@/components/ui/cards";
+import MarketPlace from "@/components/sections/MarketPlace";
+import ProductAndDiscount from "@/components/sections/ProductAndDiscount";
+import { useEffect, useState } from "react";
+import { getAllData } from "./actions/getAllData";
+import {
+  AdvertisingForRub,
+  Gabarit,
+  ProductAndCategory,
+  TaxForRub,
+} from "@prisma/client";
+import { useAppSelector } from "@/redux/hooks";
+import {
+  selectComission,
+  selectDeliveryWithDemesion,
+  selectPriceForSell,
+  selectStorageSixteenDays,
+} from "@/redux/slices/formsSlice";
+import { rounding } from "@/tools/math";
+
+interface Data {
+  taxForRub: TaxForRub;
+  advertisingForRub: AdvertisingForRub;
+  productAndCategory: ProductAndCategory[];
+  gabarits: Gabarit[];
+}
 
 export default function Home() {
+  const [data, setData] = useState<Data | null>(null);
+  // const forms = useAppSelector((state) => state.forms);
+  const comission = useAppSelector(selectComission) as number;
+  const starage = useAppSelector(selectStorageSixteenDays) as number;
+  const deliveryWithDemension = useAppSelector(
+    selectDeliveryWithDemesion
+  ) as number;
+  const priceForSell = useAppSelector(selectPriceForSell) as number;
+  const forms = useAppSelector((state) => state.forms);
+  const revenue =
+    priceForSell -
+      comission -
+      deliveryWithDemension -
+      60 * (forms.marketForm.gabarit?.warehouseStorage || 0) || 0;
+
+  const pureProfit =
+    revenue -
+      forms.productForm.costPrice -
+      priceForSell * (data?.taxForRub.percents || 0) || 0;
+
+  const [isShowAll, setShowAll] = useState<boolean>(false);
+  const [ostatok, setOstatok] = useState<number>(0);
+
+  const changeOtatok = (value: number | null) => {
+    if (value && value > 0) {
+      setOstatok(value);
+    } else {
+      setOstatok;
+    }
+  };
+  useEffect(() => {
+    (async () => {
+      const res = ((await getAllData()) as Data) || null;
+      setData(res);
+    })();
+  }, []);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+    <>
+      <ProductAndDiscount
+        products={[
+          { id: Math.random(), title: "Не выбрано", percents: 0 },
+          ...(data?.productAndCategory || []),
+        ]}
+      />
+      <MarketPlace
+        gabarits={[
+          {
+            id: Math.random(),
+            title: "Не выбрано",
+            percentageForDelivery: 0,
+            warehouseStorage: 0,
+            length: "",
+            height: "",
+            weight: "",
+          },
+
+          ...(data?.gabarits || []),
+        ]}
+        taxForRub={rounding(data?.taxForRub.percents || 0)}
+        adverstingForRub={rounding(data?.advertisingForRub.percents || 0)}
+      />
+      <Container size="large">
+        <Row className=" mt-32" gutter={[12, 12]}>
+          <Col xs={24} lg={8}>
+            <InfoCard
+              bgColor="#FF4D83"
+              items={[
+                {
+                  title: "Комиссия маркетплейса",
+                  value: `${rounding(comission)} руб`,
+                },
+                {
+                  title: "Хранение и логистика",
+                  value: `${rounding(starage + deliveryWithDemension)} руб`,
+                },
+                {
+                  title: "Налоги + реклама",
+                  value: `${rounding(
+                    priceForSell * (data?.taxForRub.percents || 0) +
+                      priceForSell * (data?.advertisingForRub.percents || 0)
+                  )} руб`,
+                },
+              ]}
             />
-          </a>
+          </Col>
+
+          <Col xs={24} lg={8}>
+            <InfoCard
+              bgColor="#4690FF"
+              items={[
+                {
+                  title: "Выручка от реализации единицы товара",
+                  value: `${rounding(revenue)} руб`,
+                },
+                {
+                  title: "Чистая прибыль с единицы товара",
+                  value: `${rounding(pureProfit)} руб`,
+                },
+              ]}
+            />
+          </Col>
+
+          <Col xs={24} lg={8}>
+            <InfoCard
+              bgColor="#31A927"
+              items={[
+                {
+                  title: "Маржинальность",
+                  value: `${rounding(
+                    Number.isNaN((pureProfit / priceForSell) * 100)
+                      ? 0
+                      : (pureProfit / priceForSell) * 100
+                  )} %`,
+                },
+                {
+                  title: "Рентабельность вложений",
+                  value: `${rounding(
+                    Number.isNaN(
+                      (pureProfit / forms.productForm.costPrice) * 100
+                    )
+                      ? 0
+                      : (pureProfit / forms.productForm.costPrice) * 100
+                  )} %`,
+                },
+                {
+                  title: "Рентабельность продаж",
+                  value: `${rounding(
+                    Number.isNaN((revenue / forms.productForm.costPrice) * 100)
+                      ? 0
+                      : (revenue / forms.productForm.costPrice) * 100
+                  )} %`,
+                },
+              ]}
+            />
+          </Col>
+        </Row>
+
+        <div className="flex flex-col items-center justify-center mt-16  mb-8">
+          <button
+            className=" bg-[#009669] text-white font-semibold px-4 py-2 rounded-lg hover:bg-opacity-90 mb-3 text-xl"
+            type="button"
+            onClick={() => setShowAll(true)}
+          >
+            Рассчитать показатели для всей партии
+          </button>
+          {isShowAll && (
+            <>
+              <div className=" text-[#4B4B4B] text-2xl font-semibold max-w-md text-center mb-2">
+                Введите остаток товаров на складе или планируемое количество
+              </div>
+              <InputNumber
+                min={0}
+                style={{ maxWidth: 320, width: "100%" }}
+                onChange={changeOtatok}
+                value={ostatok}
+              />
+            </>
+          )}
         </div>
-      </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      </Container>
+      {isShowAll && (
+        <Container size="small">
+          <Row gutter={[12, 12]}>
+            <Col span={12}>
+              <InfoCard
+                bgColor="#CF3D69"
+                items={[
+                  {
+                    title: "Себестоимость партии, р.",
+                    value: `${rounding(revenue * ostatok)} руб`,
+                  },
+                  {
+                    title: "Комиссия маркетплейса",
+                    value: `${rounding(comission * ostatok)} руб`,
+                  },
+                  {
+                    title: "Хранение и логистика",
+                    value: `${rounding(
+                      (starage + deliveryWithDemension) * ostatok
+                    )} руб`,
+                  },
+                  {
+                    title: "Налоги + реклама",
+                    value: `${rounding(
+                      (priceForSell * (data?.taxForRub.percents || 0) +
+                        priceForSell *
+                          (data?.advertisingForRub.percents || 0)) *
+                        ostatok
+                    )} руб`,
+                  },
+                ]}
+              />
+            </Col>
+            <Col span={12}>
+              <InfoCard
+                bgColor="#3772C9"
+                items={[
+                  {
+                    title: "Выручка от реализации всей партии",
+                    value: `${rounding(revenue * ostatok)} руб`,
+                  },
+                  {
+                    title: "Чистая прибыль со всей партии",
+                    value: `${rounding(pureProfit * ostatok)} руб`,
+                  },
+                ]}
+              />
+            </Col>
+          </Row>
+        </Container>
+      )}
+    </>
   );
 }
