@@ -13,7 +13,7 @@ const InfoCard: FC<Props> = ({ items, bgColor }) => {
       <table className="w-full font-semibold text-white text-lg">
         <tbody>
           {items.map((item) => (
-            <tr className="flex w-full pb-3">
+            <tr className="flex w-full pb-3" key={Math.random()}>
               <td className="pr-2 w-full">{item.title}</td>
               <td className="flex flex-shrink-0 justify-end w-24">
                 {item.value}
