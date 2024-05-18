@@ -41,7 +41,7 @@ const TaxForRubForm: FC<Props> = ({ defaultValue }) => {
     <Card style={{ marginBottom: 16 }}>
       <Form>
         <FormItem>
-          <Label label="Нолог на ед., руб в процентах">
+          <Label label="Нолог на продукта процентах">
             <InputNumber<number>
               value={+value}
               onChange={onChange}
