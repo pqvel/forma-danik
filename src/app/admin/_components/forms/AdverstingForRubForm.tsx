@@ -57,6 +57,7 @@ const AdverstingForRubForm: FC<Props> = ({ defaultValue }) => {
         </FormItem>
         <div>
           <Button
+            className="mr-3"
             disabled={loading || !isEdited}
             onClick={() => onSubmit(+value)}
           >
