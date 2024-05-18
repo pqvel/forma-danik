@@ -39,7 +39,7 @@ const ProductAndDiscount: FC<Props> = ({ products }) => {
         level={1}
         style={{ fontSize: 40, fontWeight: 900 }}
       >
-        Калькулятор unit экономики
+        Калькулятор unit-экономики
       </Title>
       <Divider />
       <section className=" mb-10">

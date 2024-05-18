@@ -190,7 +190,7 @@ const GabaritItem: FC<GabaritItemProps> = ({
 }) => {
   return (
     <tr className="even:bg-blue-100">
-      <td>
+      <td className="flex w-full">
         <table className="flex flex-col space-y-2 w-full  px-4 py-2">
           <tr className="flex space-x-4 w-full">
             <td className="w-full">
