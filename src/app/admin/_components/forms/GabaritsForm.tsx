@@ -12,6 +12,8 @@ import {
 } from "antd";
 import { Gabarit } from "@prisma/client";
 import { changeGabarits } from "@/app/actions/gabarits";
+import { getNumberPercent, getPercentNumber } from "@/tools/percentValue";
+import { rounding } from "@/tools/math";
 changeGabarits;
 type Props = {
   initialGabarits: Gabarit[];
@@ -203,8 +205,10 @@ const GabaritItem: FC<GabaritItemProps> = ({
             <td className=" w-1/3">
               <InputNumber
                 style={{ width: "100%" }}
-                value={percentageForDelivery}
-                onChange={(value) => onChangePercentageForDelivery(value || 0)}
+                value={rounding(getPercentNumber(percentageForDelivery))}
+                onChange={(value) =>
+                  onChangePercentageForDelivery(getNumberPercent(value || 0))
+                }
               />
             </td>
             <td className=" w-1/3">

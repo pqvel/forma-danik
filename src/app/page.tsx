@@ -62,6 +62,7 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       const res = ((await getAllData()) as Data) || null;
+      console.log(res);
       setData(res);
     })();
   }, []);

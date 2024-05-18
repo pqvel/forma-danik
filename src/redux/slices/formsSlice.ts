@@ -44,24 +44,30 @@ export const formsSlice = createSlice({
       action: PayloadAction<ProductAndCategory>
     ) => {
       state.productForm.productAndCategory = action.payload;
+      console.log(state.marketForm);
     },
     setCostPrice: (state, action: PayloadAction<number>) => {
       state.productForm.costPrice = action.payload;
+      console.log(state.marketForm);
     },
 
     setPriceBeforeDiscount: (state, action: PayloadAction<number>) => {
       state.productForm.priceBeforeDiscount = action.payload;
+      console.log(state.marketForm);
     },
 
     setDiscount: (state, action: PayloadAction<number>) => {
       state.productForm.discount = action.payload;
+      console.log(state.marketForm);
     },
 
     setGabarit: (state, action: PayloadAction<Gabarit>) => {
       state.marketForm.gabarit = action.payload;
+      console.log(state.marketForm);
     },
     setRedemptionPercentage: (state, action: PayloadAction<number>) => {
       state.marketForm.redemptionPercentage = action.payload;
+      console.log(state.marketForm);
     },
   },
 });
@@ -82,6 +88,7 @@ export const selectComission = (state: any) => {
 
 export const selectDeliveryToPVZ = (state: any) => {
   const priceForSell = selectPriceForSell(state);
+
   return (
     priceForSell * state.forms.marketForm.gabarit?.percentageForDelivery || 0
   );
@@ -90,11 +97,16 @@ export const selectDeliveryToPVZ = (state: any) => {
 export const selectDeliveryWithDemesion = (state: any) => {
   const deliveryToPVZ = selectDeliveryToPVZ(state);
   const rp = state.forms.marketForm?.redemptionPercentage;
-  return (rp * deliveryToPVZ + (1 - rp) * deliveryToPVZ) / rp || 0;
+
+  const v = (rp * deliveryToPVZ + (1 - rp) * (deliveryToPVZ + 33)) / rp || 0;
+
+  if (v === Infinity) return 0;
+
+  return v;
 };
 
 export const selectStorageSixteenDays = (state: any) => {
-  return 60 * state.productForm?.productAndCategory?.warehouseStorage || 0;
+  return 60 * state.forms?.marketForm?.gabarit?.warehouseStorage || 0;
 };
 
 export const {

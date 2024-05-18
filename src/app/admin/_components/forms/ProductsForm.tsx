@@ -3,6 +3,8 @@ import { FC, useEffect, useState } from "react";
 import { Button, Card, Form, Input, InputNumber } from "antd";
 import { ProductAndCategory } from "@prisma/client";
 import { changeProductsAndCategories } from "@/app/actions/productAndCategory";
+import { getNumberPercent } from "@/tools/percentValue";
+import { rounding } from "@/tools/math";
 
 type Props = {
   initialProducts: ProductAndCategory[];
@@ -123,8 +125,8 @@ const ProductItem: FC<ProductItemProps> = ({
       <td className=" w-1/3">
         <InputNumber
           style={{ width: "100%" }}
-          value={percents}
-          onChange={(value) => onChangePercent(value || 0)}
+          value={rounding(percents * 100)}
+          onChange={(value) => onChangePercent(getNumberPercent(value))}
         />
       </td>
       <td className=" flex justify-end w-[98px]">

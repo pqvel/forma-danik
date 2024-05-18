@@ -127,14 +127,10 @@ const MarketPlace: FC<Props> = ({ gabarits, taxForRub, adverstingForRub }) => {
                 <FormItem>
                   <Label label="Процент выкупа, %">
                     <InputNumber<number>
-                      min={0}
                       value={rounding(
-                        getNumberPercent(forms.marketForm.redemptionPercentage)
+                        getPercentNumber(forms.marketForm.redemptionPercentage)
                       )}
-                      max={100}
-                      onChange={(v) =>
-                        changeDemension(getPercentNumber(v || 0))
-                      }
+                      onChange={(v) => changeDemension(getNumberPercent(v))}
                       style={{
                         width: "100%",
                       }}
