@@ -1,8 +1,9 @@
 "use server";
+import { revalidatePath } from "next/cache";
 import db from "../../../db/db";
 
 export const setTaxForRub = async (value: number) => {
-  return await db.taxForRub.update({
+  const data = await db.taxForRub.update({
     where: {
       id: 1,
     },
@@ -10,6 +11,11 @@ export const setTaxForRub = async (value: number) => {
       percents: value,
     },
   });
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+
+  return data;
 };
 
 export const getTaxForRub = async () => {

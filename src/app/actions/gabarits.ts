@@ -1,11 +1,12 @@
 "use server";
 import { Gabarit } from "@prisma/client";
 import db from "../../../db/db";
+import { revalidatePath } from "next/cache";
 
 export const changeGabarits = async (gabarits: Gabarit[]) => {
   await db.gabarit.deleteMany({});
 
-  return await db.gabarit.createMany({
+  const data = await db.gabarit.createMany({
     data: gabarits.map((gabarit) => ({
       title: gabarit.title,
       percentageForDelivery: gabarit.percentageForDelivery,
@@ -15,4 +16,9 @@ export const changeGabarits = async (gabarits: Gabarit[]) => {
       weight: gabarit.weight,
     })),
   });
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+
+  return data;
 };
