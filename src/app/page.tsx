@@ -199,7 +199,9 @@ export default function Home() {
                 items={[
                   {
                     title: "Себестоимость партии, р.",
-                    value: `${rounding(revenue * ostatok)} руб`,
+                    value: `${rounding(
+                      forms.productForm.costPrice * ostatok
+                    )} руб`,
                   },
                   {
                     title: "Комиссия маркетплейса",
