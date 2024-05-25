@@ -43,7 +43,7 @@ const AdverstingForRubForm: FC<Props> = ({ defaultValue }) => {
     <Card style={{ marginBottom: 16 }}>
       <Form>
         <FormItem>
-          <Label label="Реклама на ед., руб в процентах">
+          <Label label="Реклама на единицу продукта, %">
             <InputNumber<number>
               value={+value}
               onChange={onChange}

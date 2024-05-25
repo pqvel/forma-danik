@@ -70,7 +70,7 @@ const ProductAndDiscount: FC<Props> = ({ products }) => {
               </Col>
               <Col span={8}>
                 <FormItem>
-                  <Label label="Коммиссия Родны кут, %">
+                  <Label label="Коммиссия Родны Кут, %">
                     <InputNumber<number>
                       size="large"
                       className="w-full min-w-full disabled:text-black disabled:bg-opacity-100"

@@ -61,7 +61,7 @@ const ProductsForm: FC<Props> = ({ initialProducts = [] }) => {
           <thead className="flex bg-slate-200 w-full font-semibold rounded-t-lg">
             <tr className="flex space-x-4 w-full px-4 py-2">
               <td className=" w-full text-start">Товар и его категория</td>
-              <td className=" w-1/3 text-start">Комиссия Родны кут, %</td>{" "}
+              <td className=" w-1/3 text-start">Комиссия Родны Кут, %</td>{" "}
               <td className="flex w-[98px] min-w-[98px] text-start">
                 Действия
               </td>

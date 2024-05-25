@@ -108,7 +108,7 @@ const GabaritsForm: FC<Props> = ({ initialGabarits = [] }) => {
           <thead className="flex bg-slate-200 w-full font-semibold rounded-t-lg">
             <tr className="flex space-x-4 w-full px-4 py-2">
               <td className=" w-full text-start">Размер</td>
-              <td className=" w-1/3 text-start">Доставка %</td>
+              <td className=" w-1/3 text-start">Доставка, %</td>
               <td className=" w-1/3 text-start">Хранение на складе</td>
               <td className="flex w-[98px] min-w-[98px] text-start">
                 Действия
